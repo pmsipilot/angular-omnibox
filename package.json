@@ -1,0 +1,49 @@
+{
+  "name": "angular-omnibox",
+  "version": "1.2.0",
+  "description": "omnibox for angular",
+  "main": "src/js/module.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "lesshint": "lesshint src/less/",
+    "cs": "eslint src/js",
+    "units": "karma start test/unit/karma.conf.js --single-run",
+    "test": "npm run lesshint && npm run cs && npm run units",
+    "example": "npm run example_js && npm run example_less",
+    "example_js": "./node_modules/.bin/browserify example/example.js -t [ babelify ] | ./node_modules/.bin/uglifyjs -c -o example/dist/example.js",
+    "example_less": "./node_modules/.bin/lessc src/less/main.less example/dist/angular-omnibox.css"
+  },
+  "author": "Groupe PSIH",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "1.5.6",
+    "angular-translate": "^2.15.0"
+  },
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.7.0",
+    "babelify": "^7.2.0",
+    "browserify": "^14.3.0",
+    "chai": "^4.1.2",
+    "es6-promise": "^4.2.4",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.2.0",
+    "jasmine-core": "^3.1.0",
+    "karma": "^2.0.4",
+    "karma-browserify": "^5.3.0",
+    "karma-coverage": "^1.1.2",
+    "karma-jasmine": "^1.1.2",
+    "karma-junit-reporter": "^1.2.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "less": "^3.8.1",
+    "lesshint": "^5.1.0",
+    "uglify-js": "^3.4.9"
+  }
+}

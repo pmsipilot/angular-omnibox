@@ -1,0 +1,26 @@
+{
+  "fileExtensions": [
+    ".less",
+    ".css"
+  ],
+
+  "excludedFiles": ["vendor.less"],
+
+  "spaceAfterPropertyColon": {
+    "enabled": true,
+    "style": "one_space"
+  },
+
+  "qualifyingElement": false,
+  "propertyOrdering": false,
+  "colorVariables": true,
+  "decimalZero": "none",
+  "idSelector": false,
+  "maxCharPerLine": false,
+  "hexLength": "short",
+  "colorVariables": true,
+  "importantRule": false,
+  "zeroUnit": {
+    "style": "no_unit"
+  }
+}

@@ -1,0 +1,100 @@
+@import './vars';
+@import 'component/typeahead';
+@import 'component/token';
+@import 'component/order';
+
+pm-angular-omnibox {
+  position: relative;
+  display: block;
+  width: 100%;
+  background-color: @bg-omnibox;
+
+  .angular-omnibox {
+    display: flex;
+    align-items: stretch;
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .tokens-container {
+      display: flex;
+      flex: 1;
+      flex-wrap: wrap;
+      position: relative;
+      margin-bottom: 0;
+      border: 1px solid @border-omnibox;
+      padding-right: 20px;
+      border-radius: 2px;
+
+      .input-token {
+        flex: 1;
+        position: relative;
+
+        input {
+          position: relative;
+          min-width: 200px;
+          padding: 5px 0 6px 3px;
+          border-radius: 0;
+          width: 100% !important;
+          margin: 2px 0;
+          background-color: @bg-omnibox;
+          text-align: left;
+          border: 0;
+          outline: none;
+
+          &:focus {
+            border: 0;
+            outline: none;
+          }
+        }
+      }
+
+      .delete-all {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 20px;
+        cursor: pointer;
+
+        .fa {
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+      }
+    }
+
+    .search {
+      border: 1px solid @border-omnibox;
+      border-radius: 2px;
+      margin-left: 10px;
+      display: flex;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: normal;
+      line-height: 1;
+      text-align: center;
+      background-color: @bg-search;
+      color: @white;
+      opacity: 0.65;
+
+      &.modified {
+        box-shadow: 0 0 2px 0 lighten(@bg-search, 0.5);
+        opacity: 1;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      i {
+        margin: auto;
+      }
+    }
+  }
+}
