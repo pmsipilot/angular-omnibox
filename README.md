@@ -2,6 +2,8 @@
 
 Omnibox searchbar for angular
 
+![example](./example/angular-omnibox.gif)
+
 ## Prerequisites
 
 * AngularJS 1.5+

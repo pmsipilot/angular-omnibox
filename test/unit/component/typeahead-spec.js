@@ -91,8 +91,10 @@ describe('TypeaheadOmniboxController', () => {
             };
             spyOn(mockedPromise, 'promise').and.callThrough();
             const ctrl = getCtrl(mockedPromise.promise);
+            ctrl.$rootScope = {
+                $on: () => {}
+            }
             ctrl.$onInit();
-
             expect(mockedPromise.promise).toHaveBeenCalled();
             expect(mockedPromise.promise).toHaveBeenCalledTimes(1);
             expect(ctrl.data).toEqual(jasmine.any(Function));

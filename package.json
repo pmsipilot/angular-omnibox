@@ -1,8 +1,15 @@
 {
   "name": "angular-omnibox",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "omnibox for angular",
   "main": "src/js/module.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pmsipilot/angular-omnibox.git"
+  },
+  "author": "Groupe PSIH",
+  "homepage": "https://github.com/pmsipilot/angular-omnibox#readme",
+  "license": "MIT",
   "directories": {
     "test": "test"
   },
@@ -15,8 +22,6 @@
     "example_js": "./node_modules/.bin/browserify example/example.js -t [ babelify ] | ./node_modules/.bin/uglifyjs -c -o example/dist/example.js",
     "example_less": "./node_modules/.bin/lessc src/less/main.less example/dist/angular-omnibox.css"
   },
-  "author": "Groupe PSIH",
-  "license": "ISC",
   "dependencies": {
     "angular": "1.5.6",
     "angular-translate": "^2.15.0"
@@ -36,10 +41,10 @@
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
     "jasmine-core": "^3.1.0",
-    "karma": "^2.0.4",
+    "karma": "^3.1.1",
     "karma-browserify": "^5.3.0",
     "karma-coverage": "^1.1.2",
-    "karma-jasmine": "^1.1.2",
+    "karma-jasmine": "^2.0.0",
     "karma-junit-reporter": "^1.2.0",
     "karma-phantomjs-launcher": "^1.0.4",
     "less": "^3.8.1",
