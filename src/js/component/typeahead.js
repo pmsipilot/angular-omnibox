@@ -2,8 +2,9 @@ import Util from '../util';
 
 export class TypeaheadOmniboxController {
     /* @ngInject */
-    constructor(filterFilter, $document, $rootScope) {
+    constructor(filterFilter, $document, $rootScope, $q) {
         // inject
+        this.$q = $q;
         this.$filter = filterFilter;
         this.$document = $document;
         this.$rootScope = $rootScope;
@@ -12,7 +13,6 @@ export class TypeaheadOmniboxController {
         this.exactName = this.exactName || false;
         this.perdure = this.perdure !== undefined ? this.perdure : true;
         this.autoFocus = this.autoFocus !== undefined ? this.autoFocus : false;
-        this.data = this.data !== undefined ? this.data : [];
         this.defaultToken = this.defaultToken !== undefined ? this.defaultToken : false;
 
         // init vars
@@ -34,20 +34,7 @@ export class TypeaheadOmniboxController {
         });
         this._loading = true;
         this.buildPreselectedDefault();
-        if (typeof this.data === 'function') {
-            this.data().then((items) => {
-                this.data = items;
-                if (this.data.length <= 0) {
-                    this._isAutoComplete = false;
-                }
-                this.initValue();
-            });
-        } else if (this.data.length <= 0) {
-            this._isAutoComplete = false;
-            this.initValue();
-        } else {
-            this.initValue();
-        }
+        this.initValue();
     }
 
     set input(input) {
@@ -58,7 +45,7 @@ export class TypeaheadOmniboxController {
         if (this.value && this.perdure) {
             this.autoFocus = false;
             const fields = this.getFilteredData(this.value, true);
-            if (fields.length > 0) {
+            if (fields && fields.length > 0) {
                 this.input = fields[0].name;
             } else if (!this.exactName) {
                 this.input = this.value;
@@ -77,14 +64,15 @@ export class TypeaheadOmniboxController {
     getFilteredData(input = null, strict = false) {
         const arg = input === null ? this._input : input;
         const result = this.$filter(this.data, arg, strict);
-        if (result.length <= 0 && !isNaN(arg)) {
-            return this.$filter(this.data, parseInt(arg, 10), strict);
+        if (result && result.length <= 0 && !isNaN(arg)) {
+            return this.$filter(this.data, parseInt(arg, 10), false);
         }
         return result;
     }
 
     hasFilteredData(input = null, strict = false) {
-        return this.getFilteredData(input, strict).length > 0;
+        const filteredData = this.getFilteredData(input, strict);
+        return filteredData !== null && filteredData.length > 0;
     }
 
     preselectNext(reverse = false) {
@@ -136,7 +124,11 @@ export class TypeaheadOmniboxController {
         if (visible) {
             this._preventBlur = false;
         } else if (!this._preventBlur) {
-            this.clean();
+            if (this.isToken && !this.exactName) {
+                this.checkBeforeValidate(false);
+            } else {
+                this.clean();
+            }
         }
     }
 
@@ -154,14 +146,16 @@ export class TypeaheadOmniboxController {
         }
     }
 
-    checkBeforeValidate() {
+    checkBeforeValidate(validFreeToken = true) {
         if (this._preselectedField) {
             return;
         }
         if (this.isToken && !this.exactName) {
             this.selectField({ key: this._input, name: this._input });
             this.input = this._input;
-            this.onValid();
+            if (validFreeToken) {
+                this.onValid();
+            }
         } else if (!this.isToken && this._input.length <= 0) {
             this.input = this._input;
             this.onValid();
@@ -185,15 +179,15 @@ export class TypeaheadOmniboxController {
                 if (this._preselectedField) {
                     this.input = this._preselectedField.name;
                     this.selectField(this._preselectedField);
-                } else if (event.which === 13) {
-                    this.checkBeforeValidate();
+                } else if (event.which === 13 || event.which === 9) {
+                    this.checkBeforeValidate(event.which === 13);
                 }
                 break;
             case 38: // up arrow
-                this.preselectNext(true);
+                if (this.data) { this.preselectNext(true); }
                 break;
             case 40: // down arrow
-                this.preselectNext();
+                if (this.data) { this.preselectNext(); }
                 break;
             default:
                 break;
@@ -202,7 +196,8 @@ export class TypeaheadOmniboxController {
 
     eventChange() {
         if (!this.hasDefault()) {
-            this.setPreselectedField(this.getFilteredData()[0]);
+            const filtered = this.getFilteredData();
+            this.setPreselectedField(filtered && filtered[0]);
         } else {
             this.buildPreselectedDefault();
             this.setPreselectedField(this._defaultField);
@@ -277,7 +272,7 @@ const TypeaheadOmniboxComponent = {
                 >
                     {{ field.name }}
                     <span
-                        ng-if="field.hasOwnProperty('unique') && !field.unique"
+                        ng-if="field.multiple"
                         class="multiple"
                     >Multiple</span>
                 </li>

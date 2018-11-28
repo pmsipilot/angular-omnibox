@@ -1,9 +1,11 @@
 import '../src/js/module';
+
 class ExampleOmniboxController {
     constructor($http) {
         this.$http = $http;
         this.omniboxResult = { tag: 'key2', title: 'hello' };
-        this.datasOmnibox = {
+        this.configOmnibox = null;
+        const basicConfigOmnibox = {
             title: {
                 name: 'Title',
                 exactName: false,
@@ -21,23 +23,20 @@ class ExampleOmniboxController {
                     { key: 'key4', name: 'name4' },
                     { key: 'key5', name: 'name5' }
                 ]
-            },
-            pokemon: {
+            }
+        };
+
+        this.getPokemon().then((pokemons) => {
+            basicConfigOmnibox.pokemon = {
                 name: 'Pokemon',
                 exactName: true,
                 unique: true,
                 background: '#ffd5d7',
-                autocomplete: () => this.getPokemon().then(pokemons =>
-                    pokemons.results.map((pokemon) => {
-                        const obj = {
-                            name: pokemon.name,
-                            key: pokemon.name
-                        };
-                        return obj;
-                    })
-                )
-            }
-        };
+                autocomplete: pokemons
+            };
+
+            this.configOmnibox = basicConfigOmnibox;
+        });
 
         this.orderOmnibox = {
             keyOrderBy: 'title',
@@ -57,8 +56,10 @@ class ExampleOmniboxController {
     }
 
     getPokemon() {
-        return this.$http.get("https://pokeapi.co/api/v2/pokemon/?limit=1000").then(result => result.data);
-    };
+        return this.$http.get('https://pokeapi.co/api/v2/pokemon/?limit=1000').then(result => result.data.results.map(
+            pokemon => ({ name: pokemon.name, key: pokemon.name })
+        ));
+    }
 
     omniboxCallback(result) {
         this.omniboxResult = result;
@@ -72,12 +73,14 @@ const ExampleOmniboxComponent = {
         <div>
             <h1>Angular Omnibox demo</h1>
             <pm-angular-omnibox
-                datas="$ctrl.datasOmnibox"
+                ng-if="$ctrl.configOmnibox !== null"
+                config="$ctrl.configOmnibox"
                 order="$ctrl.orderOmnibox"
                 default-token="'title'"
                 init-tokens="$ctrl.omniboxResult"
                 on-valid="$ctrl.omniboxCallback(result)">
             </pm-angular-omnibox>
+            <h2>Result object</h2>
             <textarea>{{ $ctrl.omniboxResult }}</textarea>
         </div>
     `
