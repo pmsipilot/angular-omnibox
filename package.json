@@ -1,6 +1,6 @@
 {
   "name": "angular-omnibox",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "omnibox for angular",
   "main": "src/js/module.js",
   "repository": {
@@ -15,6 +15,7 @@
   },
   "scripts": {
     "lesshint": "lesshint src/less/",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "cs": "eslint src/js",
     "units": "karma start test/unit/karma.conf.js --single-run",
     "test": "npm run lesshint && npm run cs && npm run units",
@@ -36,6 +37,7 @@
     "babelify": "^7.2.0",
     "browserify": "^14.3.0",
     "chai": "^4.1.2",
+    "conventional-changelog-cli": "^2.0.11",
     "es6-promise": "^4.2.4",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
