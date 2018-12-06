@@ -14,14 +14,17 @@ export default class Util {
     }
 
     static scrollToID(document, id, reverse = false) {
-        const visible = Util.checkElementIsInContainer(document[0].querySelector('.typeahead-box'),
-            document[0].querySelector(`.typeahead-box li:nth-child(${id + 1})`));
-        if (!visible) {
-            const offset = reverse
-                ? document[0].querySelector('.typeahead-box li:nth-child(1)').offsetTop
-                : document[0].querySelector('.typeahead-box li:nth-child(6)').offsetTop;
-            document[0].querySelector('.typeahead-box').scrollTop =
-                document[0].querySelector(`.typeahead-box li:nth-child(${id + 1})`).offsetTop - offset;
+        const container = document[0].querySelector('.typeahead-box');
+        const element = document[0].querySelector(`.typeahead-box li:nth-child(${id + 1})`);
+        if (container && element && !Util.checkElementIsInContainer(container, element)) {
+            const offsetElement = reverse
+                ? container.querySelector('li:nth-child(1)')
+                : container.querySelector('li:nth-child(6)');
+            const offset = offsetElement
+                ? offsetElement.offsetTop
+                : 0;
+            container.scrollTop =
+                element.offsetTop - offset;
         }
     }
 }

@@ -16,20 +16,22 @@ class AngularOmniboxController {
 
     initTokensOnStart() {
         if (this.initTokens) {
-            Object.keys(this.initTokens).forEach((key) => {
-                if (this.initTokens[key] && Object.prototype.hasOwnProperty.call(this.datas, key)) {
-                    const values = this.initTokens[key].split(',');
-                    for (let i = 0; i < values.length; i++) {
-                        if (values[i]) {
-                            this.tokens.push({
-                                key,
-                                name: this.datas[key].name,
-                                value: isNaN(values[i]) ? values[i] : parseInt(values[i], 10),
-                                rules: this.datas[key]
-                            });
-                        }
-                    }
-                }
+            Object.keys(this.initTokens).filter(key =>
+                this.initTokens[key] !== null
+                && this.initTokens[key] !== undefined
+                && Object.prototype.hasOwnProperty.call(this.datas, key)
+            ).forEach((key) => {
+                const tokenConfig = this.datas[key];
+                const initTokenValues = this.initTokens[key];
+                const values = typeof initTokenValues === 'string'
+                    ? initTokenValues.split(',')
+                    : [initTokenValues];
+                this.tokens.push(...values.map(value => ({
+                    key,
+                    name: tokenConfig.name,
+                    value: isNaN(value) ? value : parseInt(value, 10),
+                    rules: tokenConfig
+                })));
             });
         }
         this._initParams = this.getParams();
@@ -61,17 +63,36 @@ class AngularOmniboxController {
 
     createToken(field) {
         if (typeof field !== 'undefined') {
-            this.tokens.push({
+            const dataToken = this.datas[field.key];
+            const createdToken = {
                 key: field.key,
                 name: field.name,
                 value: field.value ? field.value : null,
-                rules: this.datas[field.key]
-            });
+                rules: Object.assign({}, dataToken)
+            };
+            if (dataToken.autocomplete && dataToken.unique === false) {
+                if (typeof createdToken.rules.autocomplete === 'function') {
+                    createdToken.rules.autocomplete = createdToken.rules.autocomplete().then(results =>
+                        this.filterTokenAutocompleteResults(createdToken, results)
+                    );
+                } else {
+                    createdToken.rules.autocomplete = this.filterTokenAutocompleteResults(createdToken, createdToken.rules.autocomplete);
+                }
+            }
+            this.tokens.push(createdToken);
             this.createDataTokens();
             if (field.value) {
                 this.eventChange();
             }
         }
+    }
+
+    filterTokenAutocompleteResults(token, results) {
+        return results.filter(result =>
+            this.tokens.filter(existingToken => existingToken.key === token.key)
+                .map(existingToken => existingToken.value)
+                .indexOf(result.key) === -1
+        );
     }
 
     changeToken(token, field) {
@@ -112,7 +133,7 @@ class AngularOmniboxController {
     createDataTokens() {
         const dataTokens = [];
         Object.keys(this.datas).forEach((key) => {
-            if (!this.datas[key].unique || (this.datas[key].unique && !this.alreadyThere(key))) {
+            if ((!this.datas[key].unique && this.hasValues(key)) || (this.datas[key].unique && !this.alreadyThere(key))) {
                 dataTokens.push({
                     key,
                     name: this.datas[key].name,
@@ -122,6 +143,15 @@ class AngularOmniboxController {
             }
         });
         this._dataTokens = dataTokens;
+    }
+
+    hasValues(key) {
+        const dataToken = this.datas[key];
+        if (dataToken.exactName && typeof dataToken.autocomplete !== 'function') {
+            return this.tokens.filter(token => token.key === key).length !== dataToken.autocomplete.length;
+        }
+
+        return true;
     }
 
     eventValidate() {
