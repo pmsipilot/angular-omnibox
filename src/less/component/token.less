@@ -5,70 +5,63 @@ pm-token-omnibox {
     flex-shrink: 0;
     white-space: nowrap;
     margin: 5px;
+    border-radius: 5px;
+    background: @bg-token;
 
-    .selectable {
-      display: flex;
-      border-radius: 5px;
-      background: @bg-token;
+    .name {
+      display: inline-block;
+      padding: 2px 2px 2px 5px;
+      border-radius: 2px 0 0 2px;
+      margin-right: 1px;
+      color: @color-token-name;
 
-      .name {
+      &:after {
+        content: ':';
+        margin-left: 2px;
         display: inline-block;
-        padding: 2px 2px 2px 5px;
-        border-radius: 2px 0 0 2px;
-        margin-right: 1px;
-        color: @color-token-name;
+      }
+    }
 
-        &:after {
-          content: ':';
-          margin-left: 2px;
-          display: inline-block;
+    .value {
+      display: inline-block;
+      padding: 2px 0;
+
+      &.selectable {
+        cursor: pointer;
+        &:hover{
+          box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.1);
         }
       }
+    }
 
-      .value-container {
-        display: inline-block;
-
-        .value {
-          display: inline-block;
-          padding: 2px 0;
-
-          &:hover {
-            box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-          }
-
-          .avatar {
-            height: 20px;
-            width: auto;
-            margin-right: 7px;
-          }
-
-          pm-typeahead-omnibox .typeahead {
-            ul {
-              margin-top: 2px;
-            }
-
-            input {
-              height: auto;
-              padding: 0;
-              background: inherit;
-              width: auto;
-              border: 0;
-            }
-          }
-        }
+    pm-typeahead-omnibox .typeahead {
+      ul {
+        margin-top: 2px;
+        min-width: 250px;
       }
 
-      .remove-token {
-        display: inline-block;
-        padding: 2px 3px 2px 2px;
-        border-bottom-right-radius: 5px;
-        border-top-right-radius: 5px;
+      input {
+        height: auto;
+        padding: 0;
+        background: inherit;
+        width: auto;
+        border: 0;
+      }
+    }
 
-        &:hover {
-          background: @bg-token-close;
-          cursor: pointer;
-        }
+    button.remove-token {
+      display: inline-block;
+      padding: 2px 3px 2px 2px;
+      border: none;
+      border-bottom-right-radius: 5px;
+      border-top-right-radius: 5px;
+      background: inherit;
+      color: inherit;
+      margin: 0;
+
+      &:hover {
+        background: @bg-token-close;
+        cursor: pointer;
       }
     }
   }

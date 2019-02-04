@@ -19,7 +19,7 @@
     "cs": "eslint src/js",
     "units": "karma start test/unit/karma.conf.js --single-run",
     "test": "npm run lesshint && npm run cs && npm run units",
-    "example": "npm run example_js && npm run example_less",
+    "example": "rm -rf ./example/dist && mkdir ./example/dist && npm run example_js && npm run example_less",
     "example_js": "./node_modules/.bin/browserify example/example.js -t [ babelify ] | ./node_modules/.bin/uglifyjs -c -o example/dist/example.js",
     "example_less": "./node_modules/.bin/lessc src/less/main.less example/dist/angular-omnibox.css"
   },

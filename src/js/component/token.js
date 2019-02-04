@@ -1,6 +1,15 @@
 export class TokenOmniboxController {
+    /* @ngInject */
+    constructor(OmniboxTokenRepository) {
+        this.TokenRepository = OmniboxTokenRepository;
+    }
+
+    $onInit() {
+        this.exactName = this.TokenRepository.findConfigByKey(this.token.key).exactName;
+    }
+
     delete() {
-        this.onDelete({ data: this.data });
+        this.onDelete({ token: this.token });
     }
 
     change(field) {
@@ -11,34 +20,33 @@ export class TokenOmniboxController {
 const TokenOmniboxComponent = {
     controller: TokenOmniboxController,
     bindings: {
-        data: '<',
+        token: '<',
         onDelete: '&',
         onChange: '&',
-        onValid: '&'
+        onValid: '&',
+        readonly: '<'
     },
     template: `
-         <li class="js-visual-token filtered-search-token">
-              <div class="selectable" ng-style="$ctrl.data.rules.hasOwnProperty('background') && { 'background-color':$ctrl.data.rules.background }">
-                  <div class="name">{{ $ctrl.data.name }}</div>
-                  <div class="value-container">
-                      <div class="value">
-                          <pm-typeahead-omnibox
-                              data="$ctrl.data.rules.autocomplete"
-                              exact-name="$ctrl.data.rules.exactName"
-                              value="$ctrl.data.value"
-                              perdure="true"
-                              is-token="true"
-                              on-select="$ctrl.change(field)"
-                              on-backspace="$ctrl.delete()"
-                              on-valid="$ctrl.onValid()"
-                              auto-focus="true">
-                          </pm-typeahead-omnibox>
-                      </div>
-                      <div class="remove-token" role="button" ng-click="$ctrl.delete()">
-                          <i class="fa fa-times"></i>
-                      </div>
-                  </div>
-              </div>
+         <li class="js-visual-token filtered-search-token selectable" ng-style="$ctrl.token.color && { 'background-color':$ctrl.token.color }">
+              <span class="name">{{ $ctrl.token.name }}</span>
+              <pm-typeahead-omnibox
+                  data="$ctrl.token.availableValues"
+                  exact-name="$ctrl.exactName"
+                  value="$ctrl.token.value"
+                  perdure="true"
+                  is-token="true"
+                  on-select="$ctrl.change(field)"
+                  on-backspace="$ctrl.delete()"
+                  on-valid="$ctrl.onValid()"
+                  auto-focus="true"
+                  ng-if="!$ctrl.readonly"
+                  class="value"
+                  ng-class="!$ctrl.readonly ? 'selectable' : ''"
+              ></pm-typeahead-omnibox>
+              <span ng-if="$ctrl.readonly" class="value">{{ $ctrl.token.valueLabel }}</span>
+              <button class="remove-token" role="button" ng-click="$ctrl.delete()" ng-if="!$ctrl.readonly">
+                  <i class="fa fa-times"></i>
+              </button>
           </li>
       `
 };

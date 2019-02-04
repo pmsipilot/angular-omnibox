@@ -1,103 +1,81 @@
 /* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["token"] }] */
 class AngularOmniboxController {
     /* @ngInject */
-    constructor($rootScope) {
+    constructor($rootScope, $q, OmniboxStorageService, OmniboxTokenRepository, OmniboxTokenFactory) {
+        this.StorageService = OmniboxStorageService;
+        this.TokenRepository = OmniboxTokenRepository;
+        this.TokenFactory = OmniboxTokenFactory;
         this.$rootScope = $rootScope;
-        this.tokens = this.tokens !== undefined ? this.tokens : [];
-        this._dataTokens = [];
-        this._initParams = null;
-        this.paramsIdentical = true;
+        this.loadLastHistory = true;
+        this.histories = this.StorageService.getElements('omnibox-history');
 
         this.$onInit = () => {
-            this.createDataTokens();
+            this.TokenRepository.deleteAllTokens();
+            this.TokenRepository.config = this.config;
             this.initTokensOnStart();
         };
     }
 
     initTokensOnStart() {
         if (this.initTokens) {
-            Object.keys(this.initTokens).filter(key =>
+            const tokenKeys = Object.keys(this.initTokens).filter(key =>
                 this.initTokens[key] !== null
                 && this.initTokens[key] !== undefined
-                && Object.prototype.hasOwnProperty.call(this.datas, key)
-            ).forEach((key) => {
-                const tokenConfig = this.datas[key];
+                && this.TokenRepository.hasConfig(key)
+            );
+            tokenKeys.forEach((key) => {
                 const initTokenValues = this.initTokens[key];
                 const values = typeof initTokenValues === 'string'
                     ? initTokenValues.split(',')
                     : [initTokenValues];
-                this.tokens.push(...values.map(value => ({
-                    key,
-                    name: tokenConfig.name,
-                    value: isNaN(value) ? value : parseInt(value, 10),
-                    rules: tokenConfig
-                })));
+                values.forEach((value) => {
+                    this.TokenRepository.create(key, value);
+                });
             });
+
+            if (tokenKeys.length > 0) {
+                this.TokenRepository.save();
+                this.histories = this.StorageService.getElements('omnibox-history');
+            }
         }
-        this._initParams = this.getParams();
-        this.createDataTokens();
+
+        if (this.TokenRepository.tokens.length === 0 && this.loadLastHistory) {
+            this.loadTokens(this.histories.length > 0
+                ? this.histories[this.histories.length - 1].map(tok => this.TokenFactory.unserialize(tok))
+                : []);
+        }
     }
 
     deleteToken(token) {
-        const idx = this.tokens.indexOf(token);
-        if (idx >= 0) {
-            this.tokens.splice(idx, 1);
-            this.createDataTokens();
+        if (this.TokenRepository.delete(token)) {
             this.eventChange();
         }
     }
 
     deleteLastToken() {
-        if (this.tokens.length > 0) {
-            this.tokens.splice(-1, 1);
-            this.createDataTokens();
+        if (this.TokenRepository.deleteLastToken()) {
             this.eventChange();
         }
     }
 
     deleteAllTokens() {
-        this.tokens = [];
-        this.createDataTokens();
+        this.TokenRepository.deleteAllTokens();
         this.eventChange();
     }
 
     createToken(field) {
         if (typeof field !== 'undefined') {
-            const dataToken = this.datas[field.key];
-            const createdToken = {
-                key: field.key,
-                name: field.name,
-                value: field.value ? field.value : null,
-                rules: Object.assign({}, dataToken)
-            };
-            if (dataToken.autocomplete && dataToken.unique === false) {
-                if (typeof createdToken.rules.autocomplete === 'function') {
-                    createdToken.rules.autocomplete = createdToken.rules.autocomplete().then(results =>
-                        this.filterTokenAutocompleteResults(createdToken, results)
-                    );
-                } else {
-                    createdToken.rules.autocomplete = this.filterTokenAutocompleteResults(createdToken, createdToken.rules.autocomplete);
-                }
-            }
-            this.tokens.push(createdToken);
-            this.createDataTokens();
-            if (field.value) {
-                this.eventChange();
-            }
+            this.TokenRepository.create(field.key, field.value ? field.value : null);
+            this.eventChange();
         }
     }
 
-    filterTokenAutocompleteResults(token, results) {
-        return results.filter(result =>
-            this.tokens.filter(existingToken => existingToken.key === token.key)
-                .map(existingToken => existingToken.value)
-                .indexOf(result.key) === -1
-        );
-    }
-
     changeToken(token, field) {
-        token.value = field.key;
-        this.eventChange();
+        if (token.value !== field.key) {
+            token.value = field.key;
+            token.valueLabel = field.name;
+            this.eventChange();
+        }
     }
 
     changeOrder(keyOrderBy, nameOrderBy, direction) {
@@ -116,79 +94,53 @@ class AngularOmniboxController {
             order: this.order.keyOrderBy,
             direction: this.order.direction
         };
-        for (let i = 0; i < this.tokens.length; i++) {
-            if (Object.prototype.hasOwnProperty.call(params, this.tokens[i].key)) {
-                params[this.tokens[i].key] += `,${this.tokens[i].value}`;
+        for (let i = 0; i < this.TokenRepository.tokens.length; i++) {
+            if (Object.prototype.hasOwnProperty.call(params, this.TokenRepository.tokens[i].key)) {
+                params[this.TokenRepository.tokens[i].key] += `,${this.TokenRepository.tokens[i].value}`;
             } else {
-                params[this.tokens[i].key] = this.tokens[i].value;
+                params[this.TokenRepository.tokens[i].key] = this.TokenRepository.tokens[i].value;
             }
         }
         return params;
     }
 
-    alreadyThere(key) {
-        return (this.tokens.findIndex(e => e.key === key) >= 0);
-    }
-
-    createDataTokens() {
-        const dataTokens = [];
-        Object.keys(this.datas).forEach((key) => {
-            if ((!this.datas[key].unique && this.hasValues(key)) || (this.datas[key].unique && !this.alreadyThere(key))) {
-                dataTokens.push({
-                    key,
-                    name: this.datas[key].name,
-                    unique: this.datas[key].unique,
-                    background: this.datas[key].background ? this.datas[key].background : null
-                });
-            }
-        });
-        this._dataTokens = dataTokens;
-    }
-
-    hasValues(key) {
-        const dataToken = this.datas[key];
-        if (dataToken.exactName && typeof dataToken.autocomplete !== 'function') {
-            return this.tokens.filter(token => token.key === key).length !== dataToken.autocomplete.length;
-        }
-
-        return true;
+    loadTokens(fields) {
+        this.TokenRepository.deleteAllTokens();
+        fields.forEach(field => this.createToken(field));
+        this.eventValidate();
     }
 
     eventValidate() {
-        this._initParams = this.getParams();
-        this.paramsIdentical = true;
+        this.TokenRepository.save();
+        this.histories = this.StorageService.getElements('omnibox-history');
         this.$rootScope.$broadcast('omnibox-close');
-        this.onValid({ result: this._initParams });
+        this.changed = false;
+        this.onValid({ result: this.getParams() });
     }
 
     eventChange() {
-        const currentParams = this.getParams();
-        this.paramsIdentical = angular.equals(currentParams, this._initParams);
         this.$rootScope.$broadcast('omnibox-focus');
-        if (this.onChange) {
-            this.paramsIdentical = true;
-            this._initParams = currentParams;
-            this.onChange({ result: this._initParams });
-        }
+        this.changed = true;
     }
 }
 
 const AngularOmniboxComponent = {
     controller: AngularOmniboxController,
     bindings: {
-        datas: '<',
+        config: '<',
         order: '<?',
         defaultToken: '<?',
         initTokens: '<?',
-        onChange: '&?',
+        loadLastHistory: '<?',
         onValid: '&'
     },
     template: `
         <div class="angular-omnibox">
+            <pm-history-omnibox on-click="$ctrl.loadTokens(fields)" histories="$ctrl.histories"></pm-history-omnibox>
             <ul class="tokens-container list-unstyled">
                 <pm-token-omnibox
-                  ng-repeat="token in $ctrl.tokens"
-                  data="token"
+                  ng-repeat="token in $ctrl.TokenRepository.tokens"
+                  token="token"
                   on-delete="$ctrl.deleteToken(token)"
                   on-change="$ctrl.changeToken(token, field)"
                   on-valid="$ctrl.eventValidate()">
@@ -198,7 +150,7 @@ const AngularOmniboxComponent = {
                         on-select="$ctrl.createToken(field)"
                         on-backspace="$ctrl.deleteLastToken()"
                         on-valid="$ctrl.eventValidate()"
-                        data="$ctrl._dataTokens"
+                        data="$ctrl.TokenRepository.configTokens"
                         exact-name="true"
                         refresh-focus="true"
                         is-token="false"
@@ -215,9 +167,9 @@ const AngularOmniboxComponent = {
                 order="$ctrl.order"
                 on-change="$ctrl.changeOrder(keyOrderBy, nameOrderBy, direction)">
             </pm-order-omnibox>
-            <div class="search" ng-click="$ctrl.eventValidate()" ng-class="{false: 'modified'}[$ctrl.paramsIdentical]">
+            <button class="search" ng-click="$ctrl.eventValidate()" ng-class="{'modified': $ctrl.changed}">
                 <i class="fa fa-search"></i>
-            </div>
+            </button>
         </div>
     `
 };

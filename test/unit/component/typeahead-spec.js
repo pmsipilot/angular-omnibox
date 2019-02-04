@@ -80,31 +80,6 @@ describe('TypeaheadOmniboxController', () => {
         });
     });
 
-    describe('$onInit', () => {
-        it("should take a promise callback as parameter", done => {
-            const mockedPromise = {
-                promise: () => {
-                    return new Promise((resolve, reject) => {
-                        return resolve(['a', 'b']);
-                    });
-                }
-            };
-            spyOn(mockedPromise, 'promise').and.callThrough();
-            const ctrl = getCtrl(mockedPromise.promise);
-            ctrl.$rootScope = {
-                $on: () => {}
-            }
-            ctrl.$onInit();
-            expect(mockedPromise.promise).toHaveBeenCalled();
-            expect(mockedPromise.promise).toHaveBeenCalledTimes(1);
-            expect(ctrl.data).toEqual(jasmine.any(Function));
-
-            mockedPromise.promise().then(result => {
-                expect(ctrl.data).toEqual(['a', 'b']);
-            }).finally(done);
-        });
-    });
-
     describe('input Setter', () => {
         it('should set the var', () => {
             const ctrl = getCtrl();
@@ -489,7 +464,7 @@ describe('TypeaheadOmniboxController', () => {
                 expect(ctrl._preventBlur).toEqual(true);
                 expect(spy).not.toHaveBeenCalled();
                 expect(ctrl.selectField).not.toHaveBeenCalled();
-                if (which === 13) {
+                if (which === 13 || which === 9) {
                     expect(ctrl.checkBeforeValidate).toHaveBeenCalled();
                 } else {
                     expect(ctrl.checkBeforeValidate).not.toHaveBeenCalled();

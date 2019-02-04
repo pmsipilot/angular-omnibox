@@ -70,9 +70,15 @@ pm-angular-omnibox {
     }
 
     .search {
+      &.modified {
+        box-shadow: 0 0 2px 0 lighten(@bg-search, 0.5);
+        opacity: 1;
+      }
+    }
+
+    button {
       border: 1px solid @border-omnibox;
       border-radius: 2px;
-      margin-left: 10px;
       display: flex;
       padding: 6px 12px;
       font-size: 13px;
@@ -82,19 +88,52 @@ pm-angular-omnibox {
       background-color: @bg-search;
       color: @white;
       opacity: 0.65;
-
-      &.modified {
-        box-shadow: 0 0 2px 0 lighten(@bg-search, 0.5);
-        opacity: 1;
-      }
-
-      &:hover {
-        cursor: pointer;
-      }
+      cursor: pointer;
+      margin: 0 5px;
 
       i {
         margin: auto;
       }
+    }
+
+    pm-history-omnibox {
+      display: flex;
+      align-items: stretch;
+
+      ul {
+        position: absolute;
+        z-index: 100;
+        background: @bg-omnibox;
+        border: 1px solid @border-omnibox;
+        filter: drop-shadow(5px 5px 5px @bg-omnibox-shadow);
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        margin-top: 40px;
+        min-width: 200px;
+        width: 50vw;
+
+        & > li {
+          display: flex;
+          padding: 0 10px;
+          background: @bg-omnibox;
+          cursor: pointer;
+          &:not(:last-of-type) {
+            border-bottom: 1px solid @border-omnibox;
+          }
+          &:hover {
+            box-shadow: inset 0 0 0 100px rgba(0, 0, 0, 0.1);
+          }
+
+          pm-token-omnibox > li {
+            padding-right: 5px;
+          }
+        }
+      }
+
+      button.active {
+        opacity: 1;
+      }
+
     }
   }
 }
