@@ -1,3 +1,12 @@
+## [2.0.1](https://github.com/pmsipilot/angular-omnibox/compare/v2.0.0...v2.0.1) (2019-02-07)
+
+
+### Bug Fixes
+
+* Add try/catch around findConfigByKey() calls | :bug: ([8522adf](https://github.com/pmsipilot/angular-omnibox/commit/8522adf))
+
+
+
 # [2.0.0](https://github.com/pmsipilot/angular-omnibox/compare/v1.2.2...v2.0.0) (2019-02-04)
 
 ### BREAKING CHANGES
