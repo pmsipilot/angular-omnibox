@@ -38,6 +38,11 @@ export default class TokenRepository {
         this._configTokens = configTokens;
     }
 
+    /**
+     * @param key
+     * @returns {*}
+     * @throws Error
+     */
     findConfigByKey(key) {
         if (Object.keys(this._config).indexOf(key) === -1) {
             throw new Error(`Config not found for key ${key}`);
@@ -56,7 +61,13 @@ export default class TokenRepository {
     }
 
     create(key, value) {
-        const config = this.findConfigByKey(key);
+        let config;
+        try {
+            config = this.findConfigByKey(key);
+        } catch (e) {
+            return;
+        }
+
         const token = this.TokenFactory.createToken(
             key,
             config.name,
@@ -78,7 +89,13 @@ export default class TokenRepository {
     }
 
     getAvailableValues(key, input) {
-        const config = this.findConfigByKey(key);
+        let config;
+        try {
+            config = this.findConfigByKey(key);
+        } catch (e) {
+            return undefined;
+        }
+
         return config.autocomplete
             ? this.$filter('filter')(config.autocomplete.filter(result =>
                 this._tokens.filter(existingToken => existingToken.key === key)

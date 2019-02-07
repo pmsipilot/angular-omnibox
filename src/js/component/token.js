@@ -5,7 +5,11 @@ export class TokenOmniboxController {
     }
 
     $onInit() {
-        this.exactName = this.TokenRepository.findConfigByKey(this.token.key).exactName;
+        try {
+            this.exactName = this.TokenRepository.findConfigByKey(this.token.key).exactName;
+        } catch (e) {
+            this.exactName = '';
+        }
     }
 
     delete() {
