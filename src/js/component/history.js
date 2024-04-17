@@ -17,7 +17,9 @@ export class HistoryOmniboxController {
     }
 
     tokenizeHistory() {
-        this.tokenizedHistories = this.histories.filter(history => history.length !== 0).map(history => history.map(token => this.TokenFactory.unserialize(token))).reverse();
+        this.tokenizedHistories = this.histories.filter(history => history.length !== 0)
+            .map(history => history.map(token => this.TokenFactory.unserialize(token)))
+            .reverse();
     }
 
     toggleHistory() {
@@ -34,10 +36,17 @@ const HistoryOmniboxComponent = {
     controller: HistoryOmniboxController,
     bindings: {
         histories: '<',
+        color: '<',
         onClick: '&'
     },
     template: `
-        <button ng-click="$ctrl.toggleHistory()" ng-class="{'active': $ctrl.tokenizedHistories.length > 0}"><i class="fa fa-history"></i></button>
+        <button 
+            ng-click="$ctrl.toggleHistory()" 
+            ng-class="{'active': $ctrl.tokenizedHistories.length > 0}"
+            ng-style="$ctrl.color.historyButton && { 'background-color':$ctrl.color.historyButton }"
+        >
+            <i class="fa fa-history"></i>
+        </button>
         <ul ng-if="$ctrl.showHistory && $ctrl.tokenizedHistories.length">
             <li ng-click="$ctrl.select(history)" ng-repeat="history in $ctrl.tokenizedHistories">
                 <pm-token-omnibox

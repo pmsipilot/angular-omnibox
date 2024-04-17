@@ -129,6 +129,7 @@ const AngularOmniboxComponent = {
     bindings: {
         config: '<',
         order: '<?',
+        color: '<?',
         defaultToken: '<?',
         initTokens: '<?',
         loadLastHistory: '<?',
@@ -136,7 +137,12 @@ const AngularOmniboxComponent = {
     },
     template: `
         <div class="angular-omnibox">
-            <pm-history-omnibox on-click="$ctrl.loadTokens(fields)" histories="$ctrl.histories"></pm-history-omnibox>
+            <pm-history-omnibox 
+                on-click="$ctrl.loadTokens(fields)" 
+                histories="$ctrl.histories"
+                color="$ctrl.color"
+            >
+            </pm-history-omnibox>
             <ul class="tokens-container list-unstyled">
                 <pm-token-omnibox
                   ng-repeat="token in $ctrl.TokenRepository.tokens"
@@ -167,7 +173,12 @@ const AngularOmniboxComponent = {
                 order="$ctrl.order"
                 on-change="$ctrl.changeOrder(keyOrderBy, nameOrderBy, direction)">
             </pm-order-omnibox>
-            <button class="search" ng-click="$ctrl.eventValidate()" ng-class="{'modified': $ctrl.changed}">
+            <button 
+                class="search" 
+                ng-click="$ctrl.eventValidate()" 
+                ng-class="{'modified': $ctrl.changed}"
+                ng-style="$ctrl.color.searchButton && { 'background-color':$ctrl.color.searchButton }"
+            >
                 <i class="fa fa-search"></i>
             </button>
         </div>
