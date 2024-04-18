@@ -1,3 +1,12 @@
+## [2.1.0](https://github.com/pmsipilot/angular-omnibox/compare/v2.0.1...v2.1.0) (2024-04-18)
+
+
+### Features
+
+* Add custom color config for the search and history button ([b3fb792](https://github.com/pmsipilot/angular-omnibox/commit/b3fb792))
+
+
+
 ## [2.0.1](https://github.com/pmsipilot/angular-omnibox/compare/v2.0.0...v2.0.1) (2019-02-07)
 
 

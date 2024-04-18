@@ -1,6 +1,6 @@
 {
   "name": "angular-omnibox",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "omnibox for angular",
   "main": "src/js/module.js",
   "repository": {

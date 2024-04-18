@@ -53,6 +53,11 @@ class ExampleOmniboxController {
                 }
             ]
         };
+
+        this.colorOmnibox = {
+            historyButton: '#0f655e',
+            searchButton: '#0f655e'
+        };
     }
 
     getPokemon() {
@@ -76,6 +81,7 @@ const ExampleOmniboxComponent = {
                 ng-if="$ctrl.configOmnibox !== null"
                 config="$ctrl.configOmnibox"
                 order="$ctrl.orderOmnibox"
+                color="$ctrl.colorOmnibox"
                 default-token="'title'"
                 init-tokens="$ctrl.omniboxResult"
                 on-valid="$ctrl.omniboxCallback(result)">
